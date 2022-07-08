@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Manager Home Page</title>
+    <link rel="icon" type="image/x-icon" href="RatDog.png">
+</head>
+<body>
+    <h1> <b>Manager Home Page</b></h1>
+    <p><b>User:</b></p>
+    <p id="user"></p>
+    <p><b>Name:</b></p></b>
+    <p id="fname"></p> <p id="lname"></p>
+
+
+    <button onclick="logout()">Logout</button> 
+    <p id="result"></p>
+    <p id="sessionInfo"></p>
+    
+    <!-- Create defects here-->
+   
+    <table border = "2">
+    <tr>
+        <td><center><label for="select-employee"><b>Choose a RatDog:</b></label></center>
+        <!-- The select tag is suppoed to surround the option tags in order it to work correctly -->
+        <select role="Tester" id="fullname">
+            <option value="">--Select a Tester--</option>
+        </select></td>
+        <!-- Now figure out how to create an HTML element and insert it into the select tag dynamically
+            will require you to:
+            1. fetch the API for relevant information
+            2. Extract information from the response back
+            3. Create and insert HTML elements into specific parts of your page
+            HTML select: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select
+            createElement: https://developer.mozilla.org/en-US/docs/Web/API/Document/createElement
+            appendChild: https://developer.mozilla.org/en-US/docs/Web/API/Node/appendChild
+        -->
+        <td><center><label for="inputDate"><b>Date</b></label></center>
+                    <input type="date" id="date">
+
+        <!-- <td><center><label for="select-defect"><b>Dogtoy ID</b></label></center>
+                <input type="text" placeholder="Input new defect" id="defectId"> -->
+                
+            </td>
+        <td><center><label for="select-defect"><b>Description</b></label></center>
+                <textarea rows="5" cols="40" placeholder="What happened?" id="description"></textarea>
+                <!-- <input type="text" placeholder="What happened?" id="defectId"> -->
+                
+            </td>
+      
+    </tr> </table> 
+    <br><button id="submit" onclick="newDefect()">Submit</button></br>
+
+
+<!-- Status on defect here worked on by testers "What da dog doing?"
+<tr>
+    <td>
+        <center><label for="defectStatus"><b>What da Dog doing?</b></label></center>
+        <select></select>
+    </td>
+</tr> -->
+
+
+</body>
+<script>
+    // this function will let the manager to POST /defects onto the API and have it created for the tester
+    
+    async function newDefect(){
+        const tList = document.getElementById("fullname")
+
+        const d = new Date();
+        let time = d.getTime();
+        let pushDate = document.getElementById("date").value;
+    
+        const uhoh = document.getElementById("description").value;
+        
+
+        let submitJSON = JSON.stringify({
+                assignedTo: tList.options[tList.selectedIndex].value,
+                dateReported: Date.parse(pushDate), // will only accept numbers
+                desc: uhoh, // auto creates an Id to save the description in order for the program to pull it up
+                stepsToReproduce: "string",
+                severity: "Low",
+                priority: "Low",
+            });
+
+    let submit = {
+            method:"POST",
+            headers:{'Content-Type':"application/JSON"},
+            body: submitJSON
+        }
+
+        let httpResponse = await fetch("https://bugcatcher.coe.revaturelabs.com/8/defects",submit);
+        console.log(httpResponse)
+    
+        if(httpResponse.status === 201){
+            let responseBody = await httpResponse.json(); 
+            alert(`The defect has been assigned to ${tList.options[tList.selectedIndex].innerHTML}`);
+            console.log(httpResponse); 
+        }
+            
+    }
+
+
+    function addElement(username, fname, lname){
+        // testers is now the select element
+        const testers = document.getElementById("fullname");
+        // newOption is now a newly created element that is not available in HTML right now
+        let newOption = document.createElement("option");
+        // <option></option> now created
+        newOption.innerHTML = `${fname} ${lname}`;
+        // <option>${fname} ${lname}</option>
+        newOption.value = username;
+        newOption.Id = username; // attach an Id to the select option element for the tester and description.!!!!!!!!!!!!!!!!!!!!!!!
+
+
+        testers.appendChild(newOption); // now newOption is appended to testers.
+        console.log(testers)
+        console.log(newOption)
+    }
+
+    async function extractRatDogs(){
+
+        let config = {
+            method:"GET",
+        }
+
+        // initiate fetch from the api and store the response in httpResponse
+        let httpResponse = await fetch("https://bugcatcher.coe.revaturelabs.com/8/employees",config);
+        
+        // debug to check what response we received 
+        console.log(httpResponse.status);
+
+        if(httpResponse.status === 200){ // if the response is 200, meaning everything is okay, then do things
+            // turn the response into usable data
+            let responseBody = await httpResponse.json();
+            
+            console.log(responseBody);
+            // for loop will access each individual rat dog in the array either if it's a tester or manager
+            for(let x = 0; x < responseBody.length; x++){
+                console.log(responseBody[x]);
+
+                const theRatDogTester = responseBody[x] // refers to a single employee; hence 1 rat dog
+                console.log(`if check: ${theRatDogTester.role === x}, theRateDogTester.role: ${theRatDogTester.role}, x: ${x}`)
+                
+                if(theRatDogTester.role === "Tester"){
+                    console.log(`${theRatDogTester.fname} + ${theRatDogTester.lname}`);
+
+                    addElement(theRatDogTester.username, theRatDogTester.fname, theRatDogTester.lname)
+
+                }
+                
+            }
+            // put it in the option of the html body
+            // will now extract information from responseBody
+
+        } else {
+            let responseBody = await httpResponse.json(); 
+            console.log(responseBody);
+        }
+
+    }
+    
+    extractRatDogs()
+
+
+    // to transfer from one local html file to another you can use the window.location.href proper
+    function logout(){ // will move to TOP RIGHT CORNER; also needs to exit out of current session completely.
+        window.location.href = "MainLP.html";
+    }
+
+    const result1 = document.getElementById("user");
+    const result2 = document.getElementById("fname");
+    const result3 = document.getElementById("lname");
+    result1.textContent = `${sessionStorage.getItem("username")}`;
+    result2.textContent = `${sessionStorage.getItem("fname")}`;
+    result3.textContent = `${sessionStorage.getItem("lname")}`;
+    
+ 
+    
+    
+
+</script>
+</html>

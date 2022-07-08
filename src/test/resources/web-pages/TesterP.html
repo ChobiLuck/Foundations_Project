@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Tester Home Page</title>
+    <link rel="icon" type="image/x-icon" href="RatDog.png">
+</head>
+<body>
+    <h1> <b>Tester Home Page</b></h1>
+    <p><b>User:</b></p>
+    <p id="user"></p>
+    <p><b>Name:</b></p></b>
+    <p id="fname"></p> <p id="lname"></p>
+
+
+    <button onclick="logout()">Logout</button> 
+    <p id="result"></p>
+    <p id="sessionInfo"></p>
+    
+
+    <!-- 
+        When logged in the tester page must be updated to the right users. Assigned defects must only show to the assigned user. 
+        
+        
+        I need to have option select Defect Id assigned to specific username
+        then select options of "Accept" or "Declined"
+        Declined will then be low priority
+
+        Accepted will lead to 3 more options. Invalid[defect rejected], fixed[defect fixed], unable to fix[defect shelved]
+
+    -->
+
+
+    <table border = "2">
+        <tr>
+            <td><center><label for="select-defect"><b>Dogtoy ID</b></label></center>
+                <select id="defectId">
+                    <option value="" id="defectId">--Select--</option>
+                </select></td>
+                <td><center><label for="select-defect"><b>Description</b></label></center>
+                    <select id="desc"> 
+                    </select></td>
+                <td><center><label for="accept-reject"><b>Accept/Reject</b></label></center>
+                    <button id="accept" onclick="acceptDefect()">Accept</button>
+                    <button id="rejected" onclick="rejectDefect()">Decline</button>
+                </td>
+                    <!-- Below will have 3 options:Reject,fixed,unable to fix -->
+                <td id="theStatus" hidden="hidden">
+                    <center><label for="theStatus"><b>Status</b></label></center>
+                    <select id="theStatus1">
+                        <option value="" >--Select--</option>
+                        <option value="Reject" id="invalid">Reject</option>
+                        <option value="Fixed" id="fixed">Fixed</option>
+                        <option value="Unfixable" id="shelved">Shelved</option>
+                    </select></td>    
+                
+        </tr> </table> 
+        <br><button id="submit" onclick="updateDefect()">Submit</button></br>
+
+<!-- 
+
+    The progress of the defects in table format here.
+
+ -->
+
+
+</body>
+<script>
+    const selectedDefect = document.getElementById("defectId");
+    const selectedActions = document.getElementById("theStatus1");
+
+    const result1 = document.getElementById("user");
+    const result2 = document.getElementById("fname");
+    const result3 = document.getElementById("lname");
+    result1.textContent = `${sessionStorage.getItem("username")}`;
+    result2.textContent = `${sessionStorage.getItem("fname")}`;
+    result3.textContent = `${sessionStorage.getItem("lname")}`;
+
+async function acceptDefect(){
+    console.log(selectedDefect.options[selectedDefect.selectedIndex].value);
+  //  console.log(selectedActions.options[selectedActions.selectedIndex].value)
+    let info = {
+        assignedTo: selectedDefect.options[selectedDefect.selectedIndex].value,
+         status: "Accepted"
+    }
+    let defectJSON = JSON.stringify(info);
+    let AcceptedFetch = {
+            method:"PATCH",
+            headers:{'Content-Type':"application/JSON"},
+            body: defectJSON,}
+        let acceptResponse = await fetch(`https://bugcatcher.coe.revaturelabs.com/8/defects/${selectedDefect.options[selectedDefect.selectedIndex].value}`,AcceptedFetch)
+
+        showStatus();
+        // three option- shoule returen as a string 
+}
+
+async function updateDefect(){
+    handleOptionSelected(selectedDefect.options[selectedDefect.selectedIndex].value)
+
+        if(selectedDefect.options[selectedDefect.selectedIndex].value === 204){
+            alert(`Dogtoy ${defectId} has been updated!`);
+            console.log(httpResponse); 
+        }
+
+}
+
+async function handleOptionSelected(defectId){
+   actionSelected = selectedActions.options[selectedActions.selectedIndex].value;
+console.log(defectId)
+    // patch the status
+
+    if(actionSelected == "invalid"){
+        let invalidInfo = {
+        assignedTo: selectedDefect.options[selectedDefect.selectedIndex].value,
+         status: "Invalid"
+    }
+    let defectJSON = JSON.stringify(invalidInfo);
+        let invalidD = {
+            assignedTo: selectedActions.options[selectedActions.selectedIndex].value,
+            status: "invalid",
+        }
+        let invalidFetch = {
+            method:"PATCH",
+            headers:{'Content-Type':"application/JSON"},
+            body: defectJSON,}
+        let acceptResponse = await fetch(`https://bugcatcher.coe.revaturelabs.com/8/defects/${selectedActions.options[selectedActions.selectedIndex].value}`, invalidD);
+       
+    } else if(actionSelected == "fixed"){
+        let fixedInfo = {
+        assignedTo: selectedDefect.options[selectedDefect.selectedIndex].value,
+         status: "Fixed"
+    }
+    let defectJSON = JSON.stringify(fixedInfo);
+        let fixedD = {
+            assignedTo: selectedActions.options[selectedActions.selectedIndex].value,
+            status: "fixed",
+        }
+        let invalidFetch = {
+            method:"PATCH",
+            headers:{'Content-Type':"application/JSON"},
+            body: defectJSON,}
+        let acceptResponse = await fetch(`https://bugcatcher.coe.revaturelabs.com/8/defects/${selectedActions.options[selectedActions.selectedIndex].value}`, fixedD);
+    } else if(actionSelected == "shelved"){
+        let shelvedInfo = {
+        assignedTo: selectedDefect.options[selectedDefect.selectedIndex].value,
+         status: "Shelved"
+    }
+    let defectJSON = JSON.stringify(shelvedInfo);
+        let notFixable = {
+            assignedTo: selectedActions.options[selectedActions.selectedIndex].value,
+            status: "shelved",
+        }
+        let invalidFetch = {
+            method:"PATCH",
+            headers:{'Content-Type':"application/JSON"},
+            body: defectJSON,}
+        let acceptResponse = await fetch(`https://bugcatcher.coe.revaturelabs.com/8/defects/${selectedActions.options[selectedActions.selectedIndex].value}`, notFixable);
+        //then the status will be "Unfixable"
+    }
+}
+async function rejectDefect(){
+    console.log(selectedDefect.options[selectedDefect.selectedIndex].value);
+    let info = {
+        assignedTo: selectedDefect.options[selectedDefect.selectedIndex].value,
+         status: "Rejected"
+    }
+    let defectJSON = JSON.stringify({status: "Rejected"});
+        let declined = {
+            method:"PATCH",
+            headers:{'Content-Type':"application/JSON"},
+            body: defectJSON,
+        }
+        let httpResponse = await fetch(`https://bugcatcher.coe.revaturelabs.com/8/defects/${selectedDefect.options[selectedDefect.selectedIndex].value}`,declined);
+}
+
+
+async function getdefectId(){
+    let defectList = {
+        method: "GET"
+    }
+
+    
+    let httpResponse = await fetch("https://bugcatcher.coe.revaturelabs.com/8/defects",defectList);
+        
+        // debug to check what response we received 
+        console.log(httpResponse.status);
+
+        if(httpResponse.status === 200){ 
+            
+            let responseBody = await httpResponse.json();
+            
+            console.log(responseBody);
+            // for loop will access each individual defect ID in the array from the testers
+            for(let x = 0; x < responseBody.length; x++){
+                console.log(responseBody[x]);
+                
+                console.log(responseBody[x].assignedTo)
+                console.log(sessionStorage.getItem("username"))
+                // if(defectId matches with username then this will show.)
+                if(responseBody[x].assignedTo === sessionStorage.getItem("username")){
+                    //only show options of defect ids assigned to that user
+                    
+                    addElement(responseBody[x].defectId)
+                    
+                }
+            }
+        }
+    }
+
+
+    function addElement(defectId){
+        // defectId is now the select element
+        const theD = document.getElementById("defectId");
+        // selectTheD is now a newly created element that is not available in HTML right now
+        let newOption = document.createElement("option");
+        // <option></option> now created
+        newOption.innerHTML = `${defectId}`;
+        // <option>${fname} ${lname}</option>
+        newOption.value = defectId;
+        newOption.Id = defectId; // attach an Id to the select option element for the tester and description.!!!!!!!!!!!!!!!!!!!!!!!
+
+        theD.appendChild(newOption); // now theD is appended to defectId
+        console.log(theD)
+        console.log(newOption)
+    }
+
+
+    getdefectId()
+
+
+let showStatus = () => {
+
+    let element = document.getElementById("theStatus");
+    let hidden = element.getAttribute("hidden");
+    element.removeAttribute("hidden");
+}
+// let hideStatus = () => {
+
+//     let element = document.getElementByID("theStatus");
+//     let hidden = element.getAttribute("hidden");
+//     element.setAttribute("hidden", "hidden");
+// }
+
+
+
+
+    function logout(){ // will move to TOP RIGHT CORNER; also needs to exit out of current session completely.
+        window.location.href = "MainLP.html";
+    }
+    
+</script>
+</html>

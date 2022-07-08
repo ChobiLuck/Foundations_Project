@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+    
+    <title>RatDog Enterprises</title>
+    <link rel="icon" type="image/x-icon" href="RatDog.png">
+    
+</head>
+
+<body>
+   <center> <img src="dograt.PNG" alt="What da dog doin?" width="500" height="345"> </center>
+   
+   <center>     
+        <h1>Login</h1>
+        <div id="input">
+            <input type="text" placeholder="Username" id="username">
+            <br>
+            <input type="password" placeholder="Password" id="password"></br>
+            <br><button id="submit" onclick="login()">Submit</button></br>
+        </div>
+    </center>
+    <audio id="ahahah" src="AHAHAH.mp3" preload="auto"></audio>
+
+</body>
+<script>
+    
+    async function login(){
+        
+        let loginInfo = {
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value,
+        }
+        
+        let loginJSON = JSON.stringify(loginInfo);
+        
+        let config = {
+            method:"PATCH",
+            headers:{'Content-Type':"application/JSON"},
+            body: loginJSON
+        }
+        
+        let httpResponse = await fetch("https://bugcatcher.coe.revaturelabs.com/8/login",config);
+        
+       
+        if(httpResponse.status === 200){
+            let responseBody = await httpResponse.json();
+            
+            sessionStorage.setItem("username", responseBody.username);
+            sessionStorage.setItem("fname", responseBody.fname);
+            sessionStorage.setItem("lname", responseBody.lname);
+
+            if(responseBody.role === "Manager"){
+                window.location.href = "managerP.html";
+            } else if(responseBody.role === "Tester"){
+                window.location.href = "TesterP.html"
+            } 
+            
+        } else {
+            let responseBody = await httpResponse.json(); // remember, json() returns a promise, so we use await to
+            document.getElementById('ahahah').play();
+            alert("Ah ah ah. You didn't say the magic word.");
+            console.error(responseBody.detail); // unseen scenario
+            console.log(httpResponse);
+        }
+    
+    }
+
+                // for user to use 'enter' key to submit button
+                var input = document.getElementById("input");
+                input.addEventListener("keypress", function(event) {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                        document.getElementById("submit").click();
+                    }
+                });
+                
+                // function validateInput(){
+                    //     // if statement will figure out if username and password are valid
+                    //     if(input == true || sessionInput == true /* must be the same from API library of employees */){
+                        //         // then it will take them to manager/testerpage;
+                        //     } else {
+                            //         // give them error;
+                            //     }
+                            // }
+                            // function wrongInput(){
+                                //     alert("Ah ah ah. You didn't say the magic word.");
+                                
+                                // }
+                                // function createOK(){
+                                    //     let result = confirm("OK");
+                                    //     console.log(result);
+                                    // }
+                                    
+                                    // function login(){
+                                        //     localStorage.setItem("number",input.value)
+                                        //     sessionStorage.setItem("sessionNum",sessionInput.value);
+                                        //     window.location.href = "managerP.html";
+                                        // }
+    </script>    
+</html>
