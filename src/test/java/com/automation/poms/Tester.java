@@ -9,6 +9,8 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 
+import com.automation.runner.TestRunner;
+
 public class Tester {
     private WebDriver driver;
 
@@ -19,10 +21,9 @@ public class Tester {
 
     // Select a DEFECT
     public void selectTester() {
-        Select testerSelection = new Select(driver.findElement(By.id("defectId")));
-        String defectIdOption = "80425";
-        testerSelection.selectByValue(80425);
-    }
+        Select dropdown = new Select(TestRunner.driver.findElement(By.id("defectId")));
+        dropdown.selectByValue("80425");
+
 
     // click Accept
     @FindBy(id = "accept") // @FindBy(xpath = ""
@@ -34,7 +35,7 @@ public class Tester {
     }
 
     // wait for status table to "unhidden"
-    public void statusUnhidden() {
+    public void statusUnhidden() throws InterruptedException {
         TimeUnit.SECONDS.sleep(3);
 
     }
@@ -47,10 +48,11 @@ public class Tester {
     // Select statusSelect = new Select(driver.findElement(By.id("fixed")));
     // String statusOption = "Fixed";
     // statusSelect.selectByValue(statusOption);
+    
 
-    }
+    // @FindBy(xpath = ""
     // click the update button
-    @FindBy(id = "submit")  // @FindBy(xpath = ""
+    @FindBy(id = "submit")
     public WebElement updateDefect;
 
     public void updateDefect() {
@@ -60,3 +62,13 @@ public class Tester {
         // defect is now updated in api [success]
 
 }
+
+	public WebElement clickButton(String string) {
+		return null;
+	}
+
+	public void submitButton() {
+	}
+}
+
+  

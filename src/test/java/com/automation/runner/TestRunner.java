@@ -9,6 +9,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.automation.poms.Login;
 import com.automation.poms.Manager;
+import com.automation.poms.Tester;
+
 import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
 
@@ -18,8 +20,8 @@ public class TestRunner {
 
     public static WebDriver driver;
     public static Login login;
-     public static Manager manager;
-    // public static Tester tester;
+    public static Manager manager;
+    public static Tester tester;
     public static WebDriverWait wait;
     public static Object submit;
 	public static Object description;
